@@ -30,7 +30,28 @@ if ($conn->query($sql) === TRUE){
 
 }
 
-Auth auth($conn);
+$auth = new Auth($conn);
+
+
+// -- Start
+
+/* 
+    #1 parse url params
+    #2 first time setup check
+
+    #3 ban hwid if needed
+    #4 check if hwid is banned
+    #5 check if client exists
+    #6 getTimeLeft
+    #7 if time over send false response
+    #8 else 
+
+ */
+
+$auth->getData($_GET["token"], $_GET["hwid"], $_GET["ban"]);
+$auth->firstTimeSetup();
+
+// -- End
 
 
 echo "Connected successfully";

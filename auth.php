@@ -11,10 +11,10 @@ public:
         $this->m_db = $db;
     }
 
-    // -- stores the recieved url params
-    function getData($keyParam, $hwidParam)
+    // -- safetly stores the recieved url params
+    function getData($keyParam, $hwidParam, $banParam)
     {
-        $this->m_key = $keyParam; $this->m_hwid = $hwidParam;
+        $this->m_key = $this->$m_db->real_escape_string($keyParam); $this->m_hwid = $this->$m_db->real_escape_string($hwidParam); $this->$m_banUser = $banParam
     }
 
     function sendData()
@@ -64,6 +64,11 @@ public:
     function getTimeLeft()
     {
         
+    }
+
+    function timeOver()
+    {
+
     }
 
     function addTime($time)

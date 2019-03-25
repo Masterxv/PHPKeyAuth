@@ -1,18 +1,19 @@
 <?php
-require "auth.php"
+require "auth.php";
 
 $servername = "localhost";
-$username = "username";
-$password = "password";
+$username = "root";
+$password = "";
+$database = "customers";
 
 // Create connection
-$conn = new mysqli($servername, $username, $password);
+$conn = new mysqli($servername, $username, $password, $database);
 
 // Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } 
-
+/* 
 // create database
 $sql = "CREATE TABLE Users ( 
     id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
@@ -28,7 +29,7 @@ if ($conn->query($sql) === TRUE){
 }else{
     echo "Error creating Users" . $conn->error;
 
-}
+} */
 
 $auth = new Auth($conn);
 
@@ -47,14 +48,15 @@ $auth = new Auth($conn);
     #8 else 
 
  */
-
-$auth->getData($_GET["token"], $_GET["hwid"], $_GET["ban"]);
-$auth->firstTimeSetup();
-
+if (isset($_GET["key"]) && isset($_GET["hwid"]))
+{
+    $auth->getData($_GET["key"], $_GET["hwid"], $_GET["ban"]);
+    $auth->firstTimeSetup();
+}
 // -- End
 
 
-echo "Connected successfully";
+echo "Connected successfully\n";
 
 $conn->close();
 ?>

@@ -2,11 +2,15 @@
 
 class Auth
 {
-private:
-    $m_db, $m_timeLeft, $m_currTime, $m_banUser, $m_key, $m_hwid, $m_ip;
+private $m_db, 
+    $m_timeLeft, 
+    $m_currTime, 
+    $m_banUser, 
+    $m_key, 
+    $m_hwid, 
+    $m_ip;
 
-public:
-    function __construct(mysqli $db)
+    public function __construct(mysqli $db)
     {
         $this->m_db = $db;
     }
@@ -14,7 +18,9 @@ public:
     // -- safetly stores the recieved url params
     function getData($keyParam, $hwidParam, $banParam)
     {
-        $this->m_key = $this->$m_db->real_escape_string($keyParam); $this->m_hwid = $this->$m_db->real_escape_string($hwidParam); $this->$m_banUser = $banParam
+        $this->m_key = $this->m_db->real_escape_string($keyParam); 
+        $this->m_hwid = $this->m_db->real_escape_string($hwidParam); 
+        $this->m_banUser = $banParam;
     }
 
     function sendData()
@@ -22,21 +28,30 @@ public:
 
     }
 
+    function fetchHWIDData()
+    {
+        $stmt = $this->m_db->prepare("SELECT * FROM users WHERE hwid = :$this->m_hwid");
+        $stmt->bind_param();
+    }
+
     function firstTimeSetup(/*$keyParam*/)
     {
         // get the keyparam and and the hwid with SQL
         // selects the hwid of a user where key = $keyParam
-        $result = $this->m_db->query("SELECT hwid FROM Users WHERE token='$this->m_key'");
-        if ($result === TRUE)
-            echo "HWID found!";
+        $result = $this->m_db->query("SELECT hwid FROM users WHERE token=:$this->m_key");
+        /* while ($row = $result->fetch_array($result))
+            echo $row[0]; */
+        
+         if ($result === TRUE)
+            echo "HWID found!\n";
         else
-            echo "HWID Search failed!";
+            echo "HWID Search failed!\n"; 
     }
 
     function Exists($keyParam, $hwidParam)
     {
         // -- if hwid matches and key return true, if key matches but not the hwid (if the key is found for multiple hwids, ban the hwid)
-        $result = $this->m_db->query("SELECT token, hwid FROM Users WHERE token='$this->m_key' AND hwid=`$this->m_hwid`");
+        $result = $this->m_db->query("SELECT token, hwid FROM users WHERE token='$this->m_key' AND hwid=`$this->m_hwid`");
     
         // -- if the key and hwid matches the user exists
         return $result->num_rows == 1;

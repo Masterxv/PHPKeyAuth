@@ -50,6 +50,7 @@ $auth = new Auth($conn);
  */
 if (isset($_GET["key"]) && isset($_GET["hwid"]))
 {
+    echo "lmao\n";
     $auth->getData($_GET["key"], $_GET["hwid"], $_GET["ban"]);
     $auth->firstTimeSetup();
 }

@@ -23,7 +23,7 @@ private $m_db,
         $this->m_banUser = $banParam;
     }
 
-    function sendData()
+    function sendData($data)
     {
 
     }
@@ -39,49 +39,43 @@ private $m_db,
         // get the keyparam and and the hwid with SQL
         // selects the hwid of a user where key = $keyParam
 
-        $result = $this->m_db->query("SELECT hwid FROM users WHERE token=:$this->m_key");
-        if ($result === TRUE)
+        $result = $this->m_db->query("SELECT hwid, token FROM users WHERE token=$this->m_key");
+
+        $r    = mysqli_fetch_array($result);
+        $hwid = $r['hwid'];
+        $key  = $r['token'];
+
+        if ($hwid == 0 && $key == $this->m_key)
         {
-            $row = $result->fetch_array();
-            echo $row["hwid"];
+            // Update the hwid if its zero and the key is real
+            // UPDATE users SET hwid = 1111 WHERE token = 1337
+            $t = $this->m_db->query("UPDATE users SET hwid=$this->m_hwid WHERE token=$this->m_key");
+            echo "first time setup successful!\n" . $t;
         }
-        else echo "query failed!";
-        
-        /* if (!$result)
-            echo "no result";
-        else
-            echo "got em!"; */
-
-        /*$hwid = mysql_fetch_row($result);
-
-        if (!$result)
-            echo "Query failed\n";
-        
-        echo "result: " . $hwid[0]; */
-
-        /* while ($row = $result->fetch_array($result))
-            echo $row[0]; */
+        else echo "first time setup incorrect!\n";
     }
 
-    function Exists($keyParam, $hwidParam)
+    function Exists()
     {
         // -- if hwid matches and key return true, if key matches but not the hwid (if the key is found for multiple hwids, ban the hwid)
-        $result = $this->m_db->query("SELECT token, hwid FROM users WHERE token='$this->m_key' AND hwid=`$this->m_hwid`");
+        $result = $this->m_db->query("SELECT token, hwid FROM users WHERE token=$this->m_key AND hwid=$this->m_hwid");
     
         // -- if the key and hwid matches the user exists
         return $result->num_rows == 1;
     }
 
-    function isHWIDBanned($keyParam, $banned_hwids)
+    function userBanned()
     {
         // -- if the key param matches with a banned key return true (key banned)
-        return $this->m_db->query("SELECT token FROM banned_hwids WHERE token=´$keyParam");
+        $r = $this->m_db->query("SELECT * FROM banned_users WHERE hwid = $this->m_hwid");
+        return $r->num_rows == 1;
     }
 
     function banHWID()
     {
         // -- add key to banned_hwids table
         // -- add hwid to banned_hwids     
+        $this->m_db->query("INSERT INTO banned_users (token, hwid) VALUES ($this->m_key, $this->m_hwid)");
     }
 
     // -- gets the ip address from the connected party
@@ -91,12 +85,12 @@ private $m_db,
     }
 
     
-    function getTimeLeft()
+    function timeLeft()
     {
         
     }
 
-    function timeOver()
+    function timeExpired()
     {
 
     }

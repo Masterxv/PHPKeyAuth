@@ -50,15 +50,31 @@ $auth = new Auth($conn);
  */
 if (isset($_GET["key"]) && isset($_GET["hwid"]))
 {
-    echo "lmao\n";
     $auth->getData($_GET["key"], $_GET["hwid"], $_GET["ban"]);
+
     $auth->firstTimeSetup();
-    //$auth->Exists();
+
+    $auth->Exists();
+    
+    if ($_GET["ban"] == 1)
+        $auth->banHWID();
+
+    if (!$auth->userBanned())
+    {
+        if (!$auth->timeExpired())
+        {
+            // send authenticated!
+        }
+        else
+            // send time expired response
+    }
+    else
+        // send banned response
 }
 // -- End
 
 
-echo "Connected successfully\n";
+// echo "Connected successfully!\n";
 
 $conn->close();
 ?>

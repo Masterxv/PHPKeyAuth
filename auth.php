@@ -34,18 +34,30 @@ private $m_db,
         $stmt->bind_param();
     }
 
-    function firstTimeSetup(/*$keyParam*/)
+    function firstTimeSetup()
     {
         // get the keyparam and and the hwid with SQL
         // selects the hwid of a user where key = $keyParam
+
         $result = $this->m_db->query("SELECT hwid FROM users WHERE token=:$this->m_key");
-        echo $result;
-        $hwid = mysql_fetch_row($result);
+        if ($result === TRUE)
+        {
+            $row = $result->fetch_array();
+            echo $row["hwid"];
+        }
+        else echo "query failed!";
+        
+        /* if (!$result)
+            echo "no result";
+        else
+            echo "got em!"; */
+
+        /*$hwid = mysql_fetch_row($result);
 
         if (!$result)
             echo "Query failed\n";
         
-        echo "result: " . $hwid[0];
+        echo "result: " . $hwid[0]; */
 
         /* while ($row = $result->fetch_array($result))
             echo $row[0]; */

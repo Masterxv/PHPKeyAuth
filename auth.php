@@ -28,11 +28,11 @@ private $m_db,
 
     }
 
-    function fetchHWIDData()
+/*     function fetchHWIDData()
     {
         $stmt = $this->m_db->prepare("SELECT * FROM users WHERE hwid = :$this->m_hwid");
         $stmt->bind_param();
-    }
+    } */
 
     function firstTimeSetup()
     {
@@ -50,9 +50,9 @@ private $m_db,
             // Update the hwid if its zero and the key is real
             // UPDATE users SET hwid = 1111 WHERE token = 1337
             $t = $this->m_db->query("UPDATE users SET hwid=$this->m_hwid WHERE token=$this->m_key");
-            echo "first time setup successful!\n" . $t;
+            echo "first time setup true!\n" . $t;
         }
-        else echo "first time setup incorrect!\n";
+        else echo "first time setup false!\n";
     }
 
     function Exists()
@@ -92,7 +92,7 @@ private $m_db,
 
     function timeExpired()
     {
-
+        return FALSE;
     }
 
     function addTime($time)

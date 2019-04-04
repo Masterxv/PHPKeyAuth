@@ -64,11 +64,14 @@ if (isset($_GET["key"]) && isset($_GET["hwid"]))
         if (!$auth->timeExpired())
         {
             // send authenticated!
+            die("ok");
         }
         else
+            die("Time expired!");
             // send time expired response
     }
     else
+        die("You've been permanently banned!");
         // send banned response
 }
 // -- End

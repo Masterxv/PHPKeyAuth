@@ -6,12 +6,14 @@ CREATE TABLE users (
     ban INT(1), 
     date TIMESTAMP 
 )
+/* ban isnt needed since its moved into a new table and deleted from the users table! */
 
 /* Creates banned_users database */
 CREATE TABLE banned_users ( 
     id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
     token VARCHAR(10) NOT NULL, 
-    hwid VARCHAR(10) NOT NULL,  
+    hwid VARCHAR(10) NOT NULL,
+    reason TEXT NULL DEFAULT NULL,  
     date TIMESTAMP 
 )
 

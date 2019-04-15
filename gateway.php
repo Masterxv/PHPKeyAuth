@@ -32,7 +32,7 @@ if ($conn->query($sql) === TRUE){
 } */
 
 $auth = new Auth($conn);
-
+ 
 
 // -- Start
 
@@ -48,31 +48,42 @@ $auth = new Auth($conn);
     #8 else 
 
  */
-if (isset($_GET["key"]) && isset($_GET["hwid"]))
+if (isset($_GET["key"]) && isset($_GET["hwid"]) && isset($_GET["ban"]))
 {
     $auth->getData($_GET["key"], $_GET["hwid"], $_GET["ban"]);
 
-    $auth->firstTimeSetup();
-
-    $auth->Exists();
-    
-    if ($_GET["ban"] == 1)
-        $auth->banHWID();
-
     if (!$auth->userBanned())
     {
-        if (!$auth->timeExpired())
+        $auth->firstTimeSetup();
+
+        // -- 0 : DOES_EXIST, 1 : DOESNT_EXIST, 2 : BANNED
+        $result = $auth->Validate();
+
+        if ($result == 1)
         {
-            // send authenticated!
-            die("ok");
-        }
-        else
-            die("Time expired!");
-            // send time expired response
+            if ($_GET["ban"] == 0)
+            {
+                if (!$auth->timeExpired())
+                {
+                    // send authenticated!
+                    die("authenticated\n");
+                }
+                else
+                    die("time_expired\n");
+                    // send time expired response
+            }
+            else
+            {
+                $auth->banHWID($auth->getHWID());
+                $auth->banReason($auth->getHWID(), "Tampering");
+                die("user_banned\n");
+            }
+        } 
+        else if ($result == 0) die("user_doesnt_exist\n");
+        else if ($result == 2) die("user_banned_sharing\n");
+        else if ($result == 3) die("user_invalid_key\n");
     }
-    else
-        die("You've been permanently banned!");
-        // send banned response
+    else die("user_banned\n");
 }
 // -- End
 

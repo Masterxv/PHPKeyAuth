@@ -49,33 +49,88 @@ private $m_db,
         {
             // Update the hwid if its zero and the key is real
             // UPDATE users SET hwid = 1111 WHERE token = 1337
-            $t = $this->m_db->query("UPDATE users SET hwid=$this->m_hwid WHERE token=$this->m_key");
-            echo "first time setup true!\n" . $t;
+            $this->m_db->query("UPDATE users SET hwid=$this->m_hwid WHERE token=$this->m_key");
+            echo "first_setup_true\n";
         }
-        else echo "first time setup false!\n";
+        else echo "first_setup_false\n";
     }
 
-    function Exists()
+    // -- 0 : DOES_EXIST, 1 : DOESNT_EXIST, 2 : BANNED, 3 : INVALID_KEY
+    function Validate()
     {
         // -- if hwid matches and key return true, if key matches but not the hwid (if the key is found for multiple hwids, ban the hwid)
-        $result = $this->m_db->query("SELECT token, hwid FROM users WHERE token=$this->m_key AND hwid=$this->m_hwid");
-    
-        // -- if the key and hwid matches the user exists
-        return $result->num_rows == 1;
+        $result = $this->m_db->query("SELECT token, hwid FROM users WHERE token=$this->m_key");
+        $r    = mysqli_fetch_array($result);
+        $hwid = $r['hwid'];
+        $key  = $r['token'];
+
+        if ($key == $this->m_key)
+        {
+            if ($hwid == $this->m_hwid)
+                return 1;
+            else
+            {
+                $this->banHWID($this->m_hwid);
+                $this->banHWID($hwid);
+
+                $this->banReason($this->m_hwid, "Sharing Key");
+                $this->banReason($hwid, "Sharing Key");
+                return 2;
+            }
+            return 0;
+        }
+        return 3;
     }
 
     function userBanned()
     {
-        // -- if the key param matches with a banned key return true (key banned)
+        // -- if hwid matches with a banned hwid return true (key banned)
         $r = $this->m_db->query("SELECT * FROM banned_users WHERE hwid = $this->m_hwid");
+        echo "$r->num_rows";
         return $r->num_rows == 1;
     }
 
-    function banHWID()
+    /*
+    // -- a shared key results in a ban
+    function banSharedKeys()
     {
-        // -- add key to banned_hwids table
-        // -- add hwid to banned_hwids     
-        $this->m_db->query("INSERT INTO banned_users (token, hwid) VALUES ($this->m_key, $this->m_hwid)");
+        $r = $this->m_db->query("SELECT hwid FROM users WHERE token=$this->m_key");
+        // -- if there are more than one hwid affiliated with the key BOTH hwid's will be banned
+        if ($r->num_rows > 1)
+        {
+            while ($row = mysqli_fetch_array($r))
+            {
+                $this->banHWID($row['hwid']);
+                $this->banReason($row['hwid'], "Sharing Key");
+            }
+            return TRUE;
+        }
+        else return FALSE;
+    }
+    */
+    function getHWID()
+    {
+        return $this->m_hwid;
+    }
+
+    function removeUser()
+    {
+
+    }
+
+    function banHWID($hwid)
+    {
+        // -- add key and hwid to banned_hwids table
+        // -- make sure the strings arent empty
+        if (!empty($hwid))  
+            $this->m_db->query("INSERT INTO banned_users (token, hwid) VALUES ($this->m_key, $hwid)");
+    }
+
+    function banReason($hwid, $reason)
+    {
+        // -- make sure the strings arent empty
+        if (!empty($hwid) && !empty($reason))
+            $this->m_db->query("INSERT INTO banned_users (hwid, reason) VALUES ($hwid, $reason)");
     }
 
     // -- gets the ip address from the connected party
